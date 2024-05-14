@@ -1,0 +1,2 @@
+--> i want to sell T-shirts online,keep track of all the customers and orders.
+I also want to add new products and keep a check on the stock
