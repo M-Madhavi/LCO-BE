@@ -4,18 +4,15 @@ require('dotenv').config();
 const mailHelper = async (options) => {
     console.log(options);
     const transporter = nodemailer.createTransport({
-        host: process.env.SMPT_HOST,
+        host: process.env.SMTP_HOST,
         port: process.env.SMTP_PORT,
-        secure: process.env.SMTP_PORT == process.env.SMTP_PORT,
         auth: {
             user: process.env.SMTP_USER,
             pass: process.env.SMTP_PASS,
-        },tls: {
-            rejectUnauthorized: false 
         }
     });
     const message = {
-        from: 'madhavi@be.pro',
+        from: 'madhavi@dev.pro',
         to: options.email,
         subject: options.subject,
         text: options.message,
@@ -23,11 +20,12 @@ const mailHelper = async (options) => {
     };
 
     // send mail with defined transport object
-    try {
-        await transporter.sendMail(message);
-    } catch (error) {
-        console.error("Error sending email: ", error);
-    }
+    await transporter.sendMail(message);
+
+    // try {
+    // } catch (error) {
+    //     console.error("Error sending email: ", error);
+    // }
 
 
 }
