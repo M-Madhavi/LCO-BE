@@ -105,12 +105,12 @@ exports.signup = BigPromise(async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
   
     // create a URL
-    // const myUrl = `${req.protocol}://${req.get(
-    //   "host"
-    // )}/api/v1/password/reset/${forgotToken}`;
+    const myUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/api/v1/password/reset/${forgotToken}`;
   
     //URL for deployment as front end might be running at different URL
-    const myUrl = `${process.env.FRONT_END}/password/reset/${forgotToken}`;
+    // const myUrl = `${process.env.FRONT_END}/password/reset/${forgotToken}`;
   
     // craft a message
     const message = `Copy paste this link in your URL and hit enter \n\n ${myUrl}`;
@@ -137,6 +137,34 @@ exports.signup = BigPromise(async (req, res, next) => {
       // send error response
       return next(new CustomError(error.message, 500));
     }
+  });
+
+
+  exports.getLoggedInUser = BigPromise(async (req,res,next) => {
+    const user = await User.findById(req.user.id)
+    res.status(200).json({
+      success:true,
+      user
+    })
+   
+  });
+
+  exports.changePassword = BigPromise(async (req,res,next) => {
+    const userId = req.user.id;
+    const user = await User.findById(userId).select("+password")
+    //oldpassword
+    const IsCorrectPassword = await user.isValidatedPassword(req.body.oldPassword);
+    if(!IsCorrectPassword){
+      return next(new CustomError("old password is incorrect", 400));
+    }
+    user.password = req.body.newPassword;
+    await user.save
+    cookieToken(user,res);
+    res.status(200).json({
+      success:true,
+      user
+    })
+   
   });
 
 
