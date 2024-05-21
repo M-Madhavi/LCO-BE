@@ -168,6 +168,60 @@ exports.signup = BigPromise(async (req, res, next) => {
   });
 
 
+  exports.updateUserDetails = BigPromise(async (req,res,next) => {
+
+    const {name,email} = req.body;
+
+    if(!(name || email)){
+      return next(new CustomError("Name or email is missing",400))
+    }
+
+    const newData ={
+      name :name,
+      email:email
+    };
+    if(req.files && req.files.photo !== ''){
+      const user = await User.findById(req.user.id);
+      const imageId = user.photo.id;
+      //delete photo on clodinary
+      const resp = await cloudinary.v2.uploader.destroy(imageId);
+      //upload the new photo
+      const result = await cloudinary.uploader.upload(req.files.photo.tempFilePath, {
+        folder: "users",
+        width: 150,
+        crop: "scale"
+    })
+
+    newData.photo = {
+      id: result.public_id,
+      secure_url: result.secure_url
+    }
+
+    }
+    const user = await User.findByIdAndUpdate(req.user.id,newData,{
+      new:true,
+      runValidators:true,
+      useFindAndModify:false
+    })
+    res.status(200).json({
+      success:true,
+      user
+    })
+   
+  });
+
+
+  exports.adminAllUser = BigPromise(async (req,res,next) => {
+    const users = await User.find()
+
+    res.status(200).json({
+      success:true,
+      users
+    })
+   
+  });
+
+
 
 
 
